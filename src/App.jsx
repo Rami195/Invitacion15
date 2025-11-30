@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import bgFlowers from "../public/imagen2.jpeg"; // usa tu imagen floral
 import bgInvitation from "../public/imagen3.jpeg";
@@ -6,6 +6,7 @@ import seccion1 from "../public/seccion1.jpeg";
 import seccion2 from "../public/seccion2.jpeg";
 import seccion3 from "../public/seccion3.jpeg";
 import seccion4 from "../public/seccion4.jpeg";
+import musicaFondo from "../public/Hola.mp3";
 
 // =================== CONFIG FECHA ===================
 const EVENT_DATE = new Date("2026-07-04T21:30:00");
@@ -160,6 +161,51 @@ function PhotoStack() {
 // =================== INVITACIÓN PRINCIPAL ===================
 function QuinceInvitation() {
   const countdown = useCountdown(EVENT_DATE);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+
+  // crear el objeto Audio cuando se monta el componente
+  useEffect(() => {
+    audioRef.current = new Audio(musicaFondo);
+    audioRef.current.loop = true; // que quede en loop si querés
+
+    return () => {
+      // al desmontar, frenar la música
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  const handleToggleMusic = async () => {
+    if (!audioRef.current) return;
+
+    const START_AT = 30; // segundo donde querés que empiece
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      try {
+        // si todavía no cargó la metadata, esperamos antes de cambiar currentTime
+        if (audioRef.current.readyState < 1) {
+          await new Promise((resolve) => {
+            const handler = () => {
+              audioRef.current.removeEventListener("loadedmetadata", handler);
+              resolve();
+            };
+            audioRef.current.addEventListener("loadedmetadata", handler);
+          });
+        }
+
+        audioRef.current.currentTime = START_AT; // ⬅️ posición inicial
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.error("No se pudo reproducir el audio:", err);
+      }
+    }
+  };
 
   return (
     // FONDO UNIFICADO PARA TODA LA PÁGINA
@@ -189,9 +235,12 @@ function QuinceInvitation() {
                 21:30
               </p>
 
-              <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-black/80 hover:bg-black px-5 py-2 text-xs sm:text-sm font-medium">
-                <span>▶</span>
-                <span>Reproducir música</span>
+              <button
+                onClick={handleToggleMusic}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-black/80 hover:bg-black px-5 py-2 text-xs sm:text-sm font-medium"
+              >
+                <span>{isPlaying ? "⏸" : "▶"}</span>
+                <span>{isPlaying ? "Pausar música" : "Reproducir música"}</span>
               </button>
             </div>
           </div>
@@ -423,9 +472,8 @@ function FloralCurtain({ onFinished }) {
     >
       {/* Mitad superior */}
       <div
-        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
-          animateOpen ? "-translate-y-full" : "translate-y-0"
-        }`}
+        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "-translate-y-full" : "translate-y-0"
+          }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center top",
@@ -433,9 +481,8 @@ function FloralCurtain({ onFinished }) {
       />
       {/* Mitad inferior */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
-          animateOpen ? "translate-y-full" : "translate-y-0"
-        }`}
+        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "translate-y-full" : "translate-y-0"
+          }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center bottom",
