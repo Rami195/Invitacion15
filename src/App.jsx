@@ -32,6 +32,10 @@ const textStagger = {
   },
 };
 
+// =================== CLASE BASE PARA SECCIONES ===================
+const SECTION_BASE =
+  "py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8";
+
 // Componente helper para textos animados
 function TextMotion({
   as = "p",
@@ -271,7 +275,7 @@ function QuinceInvitation() {
     >
       {/* velo blanco para lectura */}
       <div className="min-h-screen bg-white/70">
-        {/* HERO 1 */}
+        {/* HERO 1 (lo dejamos con min-h específico) */}
         <section className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
@@ -320,7 +324,7 @@ function QuinceInvitation() {
         </section>
 
         {/* UBICACIÓN */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 flex justify-center">
+        <section className={`${SECTION_BASE} flex justify-center`}>
           <motion.div
             className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
             variants={textStagger}
@@ -338,13 +342,13 @@ function QuinceInvitation() {
               Ubicación del evento:
             </TextMotion>
             <TextMotion className="text-base md:text-lg">
-              Plaza mayor, San Isidro, Rivadavia, Mendoza, Argentina
+              Salon Las Rosas, Junin, Mendoza
             </TextMotion>
           </motion.div>
         </section>
 
         {/* MENSAJE FOTO */}
-        <section className="min-h-[70vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion2})` }}
@@ -375,7 +379,7 @@ function QuinceInvitation() {
         </section>
 
         {/* FOTO FULL */}
-        <section className="min-h-[60vh] lg:mt-28 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[50vh] sm:min-h-[60vh] bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion3})` }}
@@ -383,15 +387,21 @@ function QuinceInvitation() {
         </section>
 
         {/* DRESS CODE */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 text-center space-y-3">
+        <section className={`${SECTION_BASE} text-center space-y-3`}>
           <motion.div
             variants={textStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.6 }}
           >
-            <TextMotion as="div" className="text-2xl">
-              🧥
+            <TextMotion
+              as="div"
+              className="text-3xl flex items-center justify-center gap-3"
+            >
+              <span role="img" aria-label="saco">
+                🧥👗
+              </span>
+
             </TextMotion>
             <TextMotion className="text-sm md:text-base">
               Código de vestimenta:
@@ -409,7 +419,7 @@ function QuinceInvitation() {
         </section>
 
         {/* CONTADOR + MAPA */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 space-y-10">
+        <section className={`${SECTION_BASE} space-y-10`}>
           {/* Contador */}
           <motion.div
             className="text-center space-y-4"
@@ -453,14 +463,14 @@ function QuinceInvitation() {
             viewport={{ once: true, amount: 0.6 }}
           >
             <TextMotion className="max-w-3xl mx-auto text-base md:text-lg">
-              Plaza mayor, San Isidro, Rivadavia, Mendoza, Argentina - 21:30
+              Salon Las Rosas, Junin, Mendoza - 21:30
             </TextMotion>
 
             <div className="max-w-4xl mx-auto w-full">
               <div className="aspect-[16/9] w-full rounded-xl overflow-hidden shadow-lg border border-slate-200">
                 <iframe
                   title="Mapa del evento"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3320.7465188118293!2d-68.476!3d-33.1909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDExJzI3LjMiUyA2OMKwMjgnMzMuNiJX!5e0!3m2!1ses-419!2sar!4v0000000000000"
+                  src="https://www.google.com/maps?q=Salon%20Las%20Rosas%20Junin%20Mendoza&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -470,7 +480,7 @@ function QuinceInvitation() {
               </div>
 
               <motion.a
-                href="https://maps.app.goo.gl/"
+                href="https://maps.app.goo.gl/5XD1Esf1orj5Mv2h7?g_st=aw"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex justify-center"
@@ -482,10 +492,13 @@ function QuinceInvitation() {
               </motion.a>
             </div>
           </motion.div>
+
         </section>
 
         {/* ITINERARIO + FOTO APILADA */}
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-10">
+        <section
+          className={`${SECTION_BASE} flex flex-col items-center gap-10`}
+        >
           {/* Itinerario */}
           <motion.div
             className="w-full max-w-sm sm:max-w-md text-center"
@@ -545,17 +558,18 @@ function QuinceInvitation() {
           {/* Foto estilo “polaroid” apilada */}
           <div className="w-full flex flex-col items-center">
             <PhotoStack />
-            <TextMotion
-              as="p"
-              className="text-xs md:text-sm text-slate-600 mt-4"
-            >
-              Toca para ver más fotos
-            </TextMotion>
+
           </div>
+          <TextMotion
+            as="p"
+            className="text-xs md:text-sm text-slate-600 mt-4"
+          >
+            Toca para ver más fotos
+          </TextMotion>
         </section>
 
         {/* CIERRE */}
-        <section className="py-10 text-center px-4">
+        <section className={`${SECTION_BASE} text-center`}>
           <TextMotion
             as="p"
             className="text-lg sm:text-xl md:text-2xl font-semibold"
@@ -629,9 +643,8 @@ function FloralCurtain({ onFinished }) {
     >
       {/* Mitad superior */}
       <div
-        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
-          animateOpen ? "-translate-y-full" : "translate-y-0"
-        }`}
+        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "-translate-y-full" : "translate-y-0"
+          }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center top",
@@ -639,9 +652,8 @@ function FloralCurtain({ onFinished }) {
       />
       {/* Mitad inferior */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
-          animateOpen ? "translate-y-full" : "translate-y-0"
-        }`}
+        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "translate-y-full" : "translate-y-0"
+          }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center bottom",
