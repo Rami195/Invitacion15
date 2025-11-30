@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 
 import bgFlowers from "../public/imagen2.jpeg"; // usa tu imagen floral
 import bgInvitation from "../public/imagen3.jpeg";
@@ -12,6 +13,47 @@ import musicaFondo from "../public/Hola.mp3";
 const EVENT_DATE = new Date("2026-07-04T21:30:00");
 const stackImages = [seccion1, seccion2, seccion3, seccion4];
 
+// =================== VARIANTS DE ANIMACIÓN ===================
+const textVariant = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+const textStagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+// Componente helper para textos animados
+function TextMotion({
+  as = "p",
+  className = "",
+  children,
+  ...rest
+}) {
+  const Tag = motion[as] || motion.p;
+  return (
+    <Tag
+      variants={textVariant}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.6 }}
+      className={className}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+}
+
 // =================== INTRO CARD (PRIMERA PANTALLA) ===================
 function IntroCard({ onEnter }) {
   return (
@@ -22,41 +64,55 @@ function IntroCard({ onEnter }) {
       {/* Oscurecer fondo */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative w-full max-w-md sm:max-w-lg mx-4">
+      <motion.div
+        className="relative w-full max-w-md sm:max-w-lg mx-4"
+        variants={textStagger}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="bg-white/95 rounded-3xl shadow-2xl border border-slate-300 px-6 py-8 sm:px-8 sm:py-10 text-center">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800 mb-2">
+          <TextMotion
+            as="h1"
+            className="text-2xl sm:text-3xl font-semibold text-slate-800 mb-2"
+          >
             Bienvenido a la
             <br />
             invitación
-          </h1>
+          </TextMotion>
 
-          <p className="text-sm sm:text-base text-slate-600 mb-6">
+          <TextMotion className="text-sm sm:text-base text-slate-600 mb-6">
             Te invitamos a esta celebración especial
-          </p>
+          </TextMotion>
 
-          <div className="space-y-3 text-sm sm:text-base text-slate-700 mb-6">
-            <div className="flex items-center justify-center gap-2">
+          <motion.div
+            className="space-y-3 text-sm sm:text-base text-slate-700 mb-6"
+            variants={textStagger}
+          >
+            <TextMotion className="flex items-center justify-center gap-2">
               <span>👤</span>
               <span>Adelina</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
+            </TextMotion>
+            <TextMotion className="flex items-center justify-center gap-2">
               <span>📅</span>
               <span>4 de Julio, 2026</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
+            </TextMotion>
+            <TextMotion className="flex items-center justify-center gap-2">
               <span>🕒</span>
               <span>21:30</span>
-            </div>
-          </div>
+            </TextMotion>
+          </motion.div>
 
-          <button
+          <motion.button
             onClick={onEnter}
             className="mt-2 w-full rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium py-2.5 transition"
+            variants={textVariant}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
           >
             Ver invitación
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -141,7 +197,8 @@ function PhotoStack() {
         } else if (pos === 2) {
           classes += " rotate-3 translate-x-3 translate-y-6 scale-95";
         } else {
-          classes += " -rotate-1 -translate-x-8 translate-y-8 scale-90 opacity-80";
+          classes +=
+            " -rotate-1 -translate-x-8 translate-y-8 scale-90 opacity-80";
         }
 
         return (
@@ -164,13 +221,11 @@ function QuinceInvitation() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
 
-  // crear el objeto Audio cuando se monta el componente
   useEffect(() => {
     audioRef.current = new Audio(musicaFondo);
-    audioRef.current.loop = true; // que quede en loop si querés
+    audioRef.current.loop = true;
 
     return () => {
-      // al desmontar, frenar la música
       if (audioRef.current) {
         audioRef.current.pause();
       }
@@ -187,18 +242,20 @@ function QuinceInvitation() {
       setIsPlaying(false);
     } else {
       try {
-        // si todavía no cargó la metadata, esperamos antes de cambiar currentTime
         if (audioRef.current.readyState < 1) {
           await new Promise((resolve) => {
             const handler = () => {
-              audioRef.current.removeEventListener("loadedmetadata", handler);
+              audioRef.current.removeEventListener(
+                "loadedmetadata",
+                handler
+              );
               resolve();
             };
             audioRef.current.addEventListener("loadedmetadata", handler);
           });
         }
 
-        audioRef.current.currentTime = START_AT; // ⬅️ posición inicial
+        audioRef.current.currentTime = START_AT;
         await audioRef.current.play();
         setIsPlaying(true);
       } catch (err) {
@@ -208,7 +265,6 @@ function QuinceInvitation() {
   };
 
   return (
-    // FONDO UNIFICADO PARA TODA LA PÁGINA
     <div
       className="min-h-screen text-slate-900 bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${bgInvitation})` }}
@@ -222,41 +278,69 @@ function QuinceInvitation() {
             style={{ backgroundImage: `url(${seccion1})` }}
           >
             <div className="absolute inset-0 bg-black/40" />
-            <div className="relative space-y-3">
-              <p className="text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase">
+            <motion.div
+              className="relative space-y-3"
+              variants={textStagger}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.6 }}
+            >
+              <TextMotion
+                as="p"
+                className="text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase"
+              >
                 XV Años
-              </p>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold">
+              </TextMotion>
+              <TextMotion
+                as="h1"
+                className="text-3xl sm:text-4xl md:text-5xl font-semibold"
+              >
                 Adelina
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg">
+              </TextMotion>
+              <TextMotion className="text-sm sm:text-base md:text-lg">
                 4 de Julio, 2026
                 <br />
                 21:30
-              </p>
+              </TextMotion>
 
-              <button
+              <motion.button
                 onClick={handleToggleMusic}
                 className="mt-4 inline-flex items-center gap-2 rounded-full bg-black/80 hover:bg-black px-5 py-2 text-xs sm:text-sm font-medium"
+                variants={textVariant}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.96 }}
               >
                 <span>{isPlaying ? "⏸" : "▶"}</span>
-                <span>{isPlaying ? "Pausar música" : "Reproducir música"}</span>
-              </button>
-            </div>
+                <span>
+                  {isPlaying ? "Pausar música" : "Reproducir música"}
+                </span>
+              </motion.button>
+            </motion.div>
           </div>
         </section>
 
         {/* UBICACIÓN */}
         <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 flex justify-center">
-          <div className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10">
-            <div className="text-2xl">📍</div>
-            <h2 className="text-lg md:text-xl font-medium">
+          <motion.div
+            className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion as="div" className="text-2xl">
+              📍
+            </TextMotion>
+            <TextMotion
+              as="h2"
+              className="text-lg md:text-xl font-medium"
+            >
               Ubicación del evento:
-            </h2>
-            <p className="text-base md:text-lg">
+            </TextMotion>
+            <TextMotion className="text-base md:text-lg">
               Plaza mayor, San Isidro, Rivadavia, Mendoza, Argentina
-            </p>
-          </div>
+            </TextMotion>
+          </motion.div>
         </section>
 
         {/* MENSAJE FOTO */}
@@ -266,20 +350,32 @@ function QuinceInvitation() {
             style={{ backgroundImage: `url(${seccion2})` }}
           >
             <div className="absolute inset-0 bg-black/40" />
-            <div className="relative max-w-3xl mx-auto px-2 sm:px-4">
-              <p className="text-base sm:text-lg md:text-2xl italic leading-relaxed">
+            <motion.div
+              className="relative max-w-3xl mx-auto px-2 sm:px-4"
+              variants={textStagger}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.6 }}
+            >
+              <TextMotion
+                as="p"
+                className="text-base sm:text-lg md:text-2xl italic leading-relaxed"
+              >
                 "Con mucha ilusión, te invito a mis quince primaveras, un día
                 lleno de sueños y alegría que quiero compartir contigo."
-              </p>
-              <p className="mt-4 text-sm md:text-base font-semibold">
+              </TextMotion>
+              <TextMotion
+                as="p"
+                className="mt-4 text-sm md:text-base font-semibold"
+              >
                 - Adelina
-              </p>
-            </div>
+              </TextMotion>
+            </motion.div>
           </div>
         </section>
 
         {/* FOTO FULL */}
-        <section className="min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <section className="min-h-[60vh] lg:mt-28 flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[50vh] sm:min-h-[60vh] bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion3})` }}
@@ -288,17 +384,43 @@ function QuinceInvitation() {
 
         {/* DRESS CODE */}
         <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 text-center space-y-3">
-          <div className="text-2xl">🧥</div>
-          <p className="text-sm md:text-base">Código de vestimenta:</p>
-          <p className="text-xl md:text-2xl font-semibold">Formal</p>
-          <p className="text-lg md:text-xl">Dress Code: Negro y blanco</p>
+          <motion.div
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion as="div" className="text-2xl">
+              🧥
+            </TextMotion>
+            <TextMotion className="text-sm md:text-base">
+              Código de vestimenta:
+            </TextMotion>
+            <TextMotion
+              as="p"
+              className="text-xl md:text-2xl font-semibold"
+            >
+              Formal
+            </TextMotion>
+            <TextMotion className="text-lg md:text-xl">
+              Dress Code: Negro y blanco
+            </TextMotion>
+          </motion.div>
         </section>
 
         {/* CONTADOR + MAPA */}
         <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 space-y-10">
           {/* Contador */}
-          <div className="text-center space-y-4">
-            <p className="text-sm md:text-base">Días restantes:</p>
+          <motion.div
+            className="text-center space-y-4"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion className="text-sm md:text-base">
+              Días restantes:
+            </TextMotion>
             <div className="flex justify-center gap-2 md:gap-3">
               {[
                 { label: "Días", value: countdown.days },
@@ -306,23 +428,33 @@ function QuinceInvitation() {
                 { label: "Min", value: countdown.minutes },
                 { label: "Seg", value: countdown.seconds },
               ].map((item) => (
-                <div key={item.label} className="flex flex-col items-center">
+                <motion.div
+                  key={item.label}
+                  className="flex flex-col items-center"
+                  variants={textVariant}
+                >
                   <div className="min-w-[42px] md:min-w-[56px] px-3 py-2 md:px-4 md:py-3 bg-black text-white text-lg md:text-2xl font-mono rounded">
                     {item.value}
                   </div>
                   <span className="mt-1 text-[10px] md:text-xs uppercase tracking-wide">
                     {item.label}
                   </span>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Texto + Mapa */}
-          <div className="space-y-4 text-center">
-            <p className="max-w-3xl mx-auto text-base md:text-lg">
+          <motion.div
+            className="space-y-4 text-center"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion className="max-w-3xl mx-auto text-base md:text-lg">
               Plaza mayor, San Isidro, Rivadavia, Mendoza, Argentina - 21:30
-            </p>
+            </TextMotion>
 
             <div className="max-w-4xl mx-auto w-full">
               <div className="aspect-[16/9] w-full rounded-xl overflow-hidden shadow-lg border border-slate-200">
@@ -337,27 +469,37 @@ function QuinceInvitation() {
                 ></iframe>
               </div>
 
-              <a
+              <motion.a
                 href="https://maps.app.goo.gl/"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex justify-center"
+                variants={textVariant}
               >
                 <button className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2">
                   Abrir en Google Maps
                 </button>
-              </a>
+              </motion.a>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* ITINERARIO + FOTO APILADA */}
         <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-10">
           {/* Itinerario */}
-          <div className="w-full max-w-sm sm:max-w-md text-center">
-            <h2 className="text-lg md:text-xl font-semibold mb-6">
+          <motion.div
+            className="w-full max-w-sm sm:max-w-md text-center"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion
+              as="h2"
+              className="text-lg md:text-xl font-semibold mb-6"
+            >
               Itinerario
-            </h2>
+            </TextMotion>
 
             <div className="inline-block text-left relative pl-4 sm:pl-6">
               {/* línea vertical */}
@@ -365,7 +507,10 @@ function QuinceInvitation() {
 
               <div className="space-y-6 text-xs sm:text-sm md:text-base">
                 {/* Evento 1 */}
-                <div className="flex items-center gap-3">
+                <motion.div
+                  className="flex items-center gap-3"
+                  variants={textVariant}
+                >
                   <span className="text-[11px] sm:text-xs md:text-sm font-mono w-12 text-right">
                     21:30
                   </span>
@@ -374,10 +519,13 @@ function QuinceInvitation() {
                     <span className="text-sm">📅</span>
                     <p className="text-sm md:text-base">Recepción</p>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Evento 2 */}
-                <div className="flex items-center gap-3">
+                <motion.div
+                  className="flex items-center gap-3"
+                  variants={textVariant}
+                >
                   <span className="text-[11px] sm:text-xs md:text-sm font-mono w-12 text-right">
                     22:30
                   </span>
@@ -389,25 +537,31 @@ function QuinceInvitation() {
                       <p>Quinceañera</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Foto estilo “polaroid” apilada */}
           <div className="w-full flex flex-col items-center">
             <PhotoStack />
-            <p className="text-xs md:text-sm text-slate-600 mt-4">
+            <TextMotion
+              as="p"
+              className="text-xs md:text-sm text-slate-600 mt-4"
+            >
               Toca para ver más fotos
-            </p>
+            </TextMotion>
           </div>
         </section>
 
         {/* CIERRE */}
         <section className="py-10 text-center px-4">
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold">
+          <TextMotion
+            as="p"
+            className="text-lg sm:text-xl md:text-2xl font-semibold"
+          >
             ¡Te esperamos!
-          </p>
+          </TextMotion>
         </section>
       </div>
     </div>
@@ -424,7 +578,7 @@ function FloralCurtain({ onFinished }) {
       const t1 = setTimeout(() => setAnimateOpen(true), 50);
       const t2 = setTimeout(() => {
         onFinished();
-      }, 1700); // coincide con duration-[1500ms] + margen
+      }, 1700);
 
       return () => {
         clearTimeout(t1);
@@ -454,9 +608,12 @@ function FloralCurtain({ onFinished }) {
           style={{ backgroundImage: `url(${bgFlowers})` }}
         >
           <div className="absolute inset-0 bg-black/30" />
-          <p className="relative text-lg md:text-2xl font-medium text-yellow-200 px-4 text-center">
+          <TextMotion
+            as="p"
+            className="relative text-lg md:text-2xl font-medium text-yellow-200 px-4 text-center"
+          >
             Desliza para abrir
-          </p>
+          </TextMotion>
         </div>
       </div>
     );
@@ -472,8 +629,9 @@ function FloralCurtain({ onFinished }) {
     >
       {/* Mitad superior */}
       <div
-        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "-translate-y-full" : "translate-y-0"
-          }`}
+        className={`absolute inset-x-0 top-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
+          animateOpen ? "-translate-y-full" : "translate-y-0"
+        }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center top",
@@ -481,8 +639,9 @@ function FloralCurtain({ onFinished }) {
       />
       {/* Mitad inferior */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${animateOpen ? "translate-y-full" : "translate-y-0"
-          }`}
+        className={`absolute inset-x-0 bottom-0 h-1/2 bg-cover bg-center transform transition-transform duration-[1500ms] ease-in-out ${
+          animateOpen ? "translate-y-full" : "translate-y-0"
+        }`}
         style={{
           backgroundImage: `url(${bgFlowers})`,
           backgroundPosition: "center bottom",
