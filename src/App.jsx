@@ -7,12 +7,13 @@ import seccion1 from "../public/seccion1.jpeg";
 import seccion2 from "../public/seccion2.jpeg";
 import seccion3 from "../public/seccion3.jpeg";
 import seccion4 from "../public/seccion4.jpeg";
+import seccion5 from "../public/seccion5.jpeg";
 import musicaFondo from "../public/Hola.mp3";
 import imagen4 from "../public/imagen4.jpg";
 
 // =================== CONFIG FECHA ===================
 const EVENT_DATE = new Date("2026-07-04T21:30:00");
-const stackImages = [seccion1, seccion2, seccion3, seccion4];
+const stackImages = [seccion1, seccion2, seccion3, seccion4, seccion5];
 
 // =================== VARIANTS DE ANIMACIÓN ===================
 const textVariant = {
@@ -109,7 +110,7 @@ function IntroCard({ onEnter }) {
 
           <motion.button
             onClick={onEnter}
-            className="mt-2 w-full rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium py-2.5 transition"
+            className="mt-2 w-full rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium py-2.5 transition"
             variants={textVariant}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
@@ -231,7 +232,16 @@ function QuinceInvitation() {
   const [apellido, setApellido] = useState("");
   const [cantidad, setCantidad] = useState(1);
   const [estadoEnvio, setEstadoEnvio] = useState("idle");
-  const GOOGLE_SCRIPT_URL ="https://script.google.com/macros/s/AKfycbw41bMYRHq59iDdCB-ROnHj_lmnMTrMSWM-hNZwpwtueMqtTh-keKBSePfdC9QR37M/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw41bMYRHq59iDdCB-ROnHj_lmnMTrMSWM-hNZwpwtueMqtTh-keKBSePfdC9QR37M/exec";
+
+
+  const handleOpenAsistencia = () => {
+    setMostrarAsistencia(true);
+    setEstadoEnvio("idle");
+    setNombre("");
+    setApellido("");
+    setCantidad(1);
+  };
 
 
   useEffect(() => {
@@ -360,7 +370,10 @@ function QuinceInvitation() {
         </section>
 
         {/* UBICACIÓN */}
-        <section className={`${SECTION_BASE} flex justify-center`}>
+        <section
+          className={`${SECTION_BASE} flex justify-center`}
+          style={{ fontFamily: '"Bebas Neue", sans-serif' }}
+        >
           <motion.div
             className="text-center space-y-4"
             variants={textStagger}
@@ -368,10 +381,11 @@ function QuinceInvitation() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.6 }}
           >
-            <TextMotion className="text-sm md:text-base">
+            <TextMotion className="text-lg md:text-2xl">
               Días restantes:
             </TextMotion>
-            <div className="flex justify-center gap-2 md:gap-3">
+
+            <div className="flex justify-center gap-3 md:gap-4">
               {[
                 { label: "Días", value: countdown.days },
                 { label: "Horas", value: countdown.hours },
@@ -383,24 +397,24 @@ function QuinceInvitation() {
                   className="flex flex-col items-center"
                   variants={textVariant}
                 >
-                  <div className="min-w-[42px] md:min-w-[56px] px-3 py-2 md:px-4 md:py-3 bg-black text-white text-lg md:text-2xl font-mono rounded">
+                  <div className="min-w-[56px] md:min-w-[72px] px-4 py-3 md:px-5 md:py-4 bg-black text-white text-2xl md:text-4xl rounded">
                     {item.value}
                   </div>
-                  <span className="mt-1 text-[10px] md:text-xs uppercase tracking-wide">
+                  <span className="mt-2 text-xs md:text-sm uppercase tracking-wide">
                     {item.label}
                   </span>
                 </motion.div>
               ))}
             </div>
           </motion.div>
-
         </section>
+
 
         {/* MENSAJE FOTO */}
         <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
-            style={{ backgroundImage: `url(${seccion2})` }}
+            style={{ backgroundImage: `url(${seccion4})` }}
           >
             <div className="absolute inset-0 bg-black/40" />
             <motion.div
@@ -451,8 +465,8 @@ function QuinceInvitation() {
         {/* FOTO FULL */}
         <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <div
-            className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[50vh] sm:min-h-[60vh] bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
-            style={{ backgroundImage: `url(${seccion3})` }}
+            className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
+            style={{ backgroundImage: `url(${seccion5})` }}
           />
         </section>
 
@@ -506,7 +520,7 @@ function QuinceInvitation() {
           >
             {/* "LOGO" ANIMADO CON EMOJI */}
             <motion.div
-              className="mx-auto mb-2 w-16 h-16 rounded-2xl bg-pink-100 flex items-center justify-center shadow-md"
+              className="mx-auto mb-2 w-16 h-16 rounded-2xl bg-[#6EC471] hover:bg-[#8ceb8f] px-8 cursor-pointer flex items-center flex-row justify-center shadow-md"
               animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
               transition={{
                 duration: 2,
@@ -516,7 +530,10 @@ function QuinceInvitation() {
             >
               {/* Podés cambiar el emoji por el que más te guste */}
               <span className="text-2xl">
-                📝💖
+                📝
+              </span>
+              <span className="text-2xl">
+                💖
               </span>
             </motion.div>
 
@@ -529,7 +546,7 @@ function QuinceInvitation() {
 
             <button
               onClick={() => setMostrarPrecio(true)}
-              className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+              className="rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium px-5 py-2"
             >
               VER VALOR
             </button>
@@ -573,7 +590,7 @@ function QuinceInvitation() {
                 className="mt-4 inline-flex justify-center"
                 variants={textVariant}
               >
-                <button className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2">
+                <button className="rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium px-5 py-2">
                   Abrir en Google Maps
                 </button>
               </motion.a>
@@ -613,14 +630,14 @@ function QuinceInvitation() {
 
             <TextMotion
               as="h2"
-              className="text-lg md:text-xl font-medium tracking-[0.15em]"
+              className="text-lg md:text-xl font-medium "
             >
               ¡Te esperamos!
             </TextMotion>
 
             <button
-              onClick={() => setMostrarAsistencia(true)}
-              className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+              onClick={() => handleOpenAsistencia()}
+              className="rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium px-5 py-2"
             >
               CONFIRMAR ASISTENCIA
             </button>
@@ -633,11 +650,21 @@ function QuinceInvitation() {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-white rounded-3xl shadow-2xl max-w-md w-[90%] px-6 py-8 text-center space-y-6"
+            className="bg-white rounded-3xl shadow-2xl max-w-md w-[90%] px-6 py-8 text-center space-y-4"
           >
             <h2 className="text-xl sm:text-2xl font-semibold text-slate-800">
               Valores de la tarjeta
             </h2>
+            <h3
+              className="text-base sm:text-lg font-semibold text-slate-800 cursor-pointer select-none hover:text-[#6EC471] transition"
+              onClick={() => {
+                navigator.clipboard.writeText("ade.garro.694");
+              }}
+            >
+              Alias: ade.garro.694
+            </h3>
+
+
 
             <div className="space-y-3 text-sm sm:text-base text-slate-700">
               <div className="flex justify-between border-b border-slate-200 pb-2">
@@ -654,18 +681,36 @@ function QuinceInvitation() {
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-500">
-              * Luego de esas fechas, los valores pueden actualizarse.
-            </p>
+            {/* Oraciones con menos separación */}
+            <div className="space-y-1">
+              <p className="text-xs sm:text-sm text-slate-500">
+                * Menores de 10 años NO PAGAN.
+              </p>
+
+              <p className="text-xs sm:text-sm text-slate-500">
+                * Enviar comprobante al{" "}
+                <a
+                  href="https://wa.me/542634180364"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#6EC471] font-semibold underline hover:opacity-80"
+                >
+                  +54 2634 180364
+                </a>
+                .
+              </p>
+            </div>
+
 
             <button
               onClick={() => setMostrarPrecio(false)}
-              className="mt-2 rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+              className="rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium px-5 py-2"
             >
               Volver
             </button>
           </motion.div>
         </div>
+
       )}
 
 
@@ -696,7 +741,7 @@ function QuinceInvitation() {
                     required
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#6EC471] focus:border-[#6EC471]"
                     placeholder="Nombre"
                   />
                 </div>
@@ -710,7 +755,7 @@ function QuinceInvitation() {
                     required
                     value={apellido}
                     onChange={(e) => setApellido(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#6EC471] focus:border-[#6EC471]"
                     placeholder="Apellido"
                   />
                 </div>
@@ -720,13 +765,19 @@ function QuinceInvitation() {
                 <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                   Cantidad de personas
                 </label>
-                <input
-                  type="number"
-                  min={1}
+
+                <select
                   value={cantidad}
-                  onChange={(e) => setCantidad(Number(e.target.value) || 1)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
-                />
+                  onChange={(e) => setCantidad(Number(e.target.value))}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#6EC471] focus:border-[#6EC471] bg-white"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+
                 <p className="mt-1 text-[11px] sm:text-xs text-slate-500">
                   Incluyéndote a vos 🙂
                 </p>
@@ -736,7 +787,7 @@ function QuinceInvitation() {
                 <button
                   type="submit"
                   disabled={estadoEnvio === "sending"}
-                  className="flex-1 rounded-full bg-pink-500 hover:bg-pink-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2"
+                  className="flex-1 rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2"
                 >
                   {estadoEnvio === "sending" ? "Enviando..." : "Enviar confirmación"}
                 </button>
@@ -749,26 +800,26 @@ function QuinceInvitation() {
                   Cancelar
                 </button>
 
-               
+
 
               </div>
-               {estadoEnvio === "sending" && (
-                  <p className="text-xs sm:text-sm text-slate-500 text-center mt-2">
-                    Enviando tu confirmación...
-                  </p>
-                )}
+              {estadoEnvio === "sending" && (
+                <p className="text-xs sm:text-sm text-slate-500 text-center mt-2">
+                  Enviando tu confirmación...
+                </p>
+              )}
 
-                {estadoEnvio === "success" && (
-                  <p className="text-xs sm:text-sm text-green-600 text-center mt-2">
-                    ¡Gracias por confirmar tu asistencia! 💖
-                  </p>
-                )}
+              {estadoEnvio === "success" && (
+                <p className="text-xs sm:text-sm text-green-600 text-center mt-2">
+                  ¡Gracias por confirmar tu asistencia! 💖
+                </p>
+              )}
 
-                {estadoEnvio === "error" && (
-                  <p className="text-xs sm:text-sm text-red-500 text-center mt-2">
-                    Ocurrió un error al enviar. Por favor, intentá de nuevo.
-                  </p>
-                )}
+              {estadoEnvio === "error" && (
+                <p className="text-xs sm:text-sm text-red-500 text-center mt-2">
+                  Ocurrió un error al enviar. Por favor, intentá de nuevo.
+                </p>
+              )}
             </form>
           </motion.div>
         </div>
