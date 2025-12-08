@@ -8,6 +8,7 @@ import seccion2 from "../public/seccion2.jpeg";
 import seccion3 from "../public/seccion3.jpeg";
 import seccion4 from "../public/seccion4.jpeg";
 import musicaFondo from "../public/Hola.mp3";
+import imagen4 from "../public/imagen4.jpg";
 
 // =================== CONFIG FECHA ===================
 const EVENT_DATE = new Date("2026-07-04T21:30:00");
@@ -224,6 +225,14 @@ function QuinceInvitation() {
   const countdown = useCountdown(EVENT_DATE);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
+  const [mostrarPrecio, setMostrarPrecio] = useState(false);
+  const [mostrarAsistencia, setMostrarAsistencia] = useState(false);
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [cantidad, setCantidad] = useState(1);
+  const [estadoEnvio, setEstadoEnvio] = useState("idle");
+  const GOOGLE_SCRIPT_URL ="https://script.google.com/macros/s/AKfycbw41bMYRHq59iDdCB-ROnHj_lmnMTrMSWM-hNZwpwtueMqtTh-keKBSePfdC9QR37M/exec";
+
 
   useEffect(() => {
     audioRef.current = new Audio(musicaFondo);
@@ -236,10 +245,37 @@ function QuinceInvitation() {
     };
   }, []);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setEstadoEnvio("sending");
+
+    try {
+      const body = new URLSearchParams({
+        nombre,
+        apellido,
+        cantidad: String(cantidad),
+      });
+
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body,
+      });
+
+      setEstadoEnvio("success");
+      setNombre("");
+      setApellido("");
+      setCantidad(1);
+    } catch (error) {
+      console.error(error);
+      setEstadoEnvio("error");
+    }
+  };
+
   const handleToggleMusic = async () => {
     if (!audioRef.current) return;
 
-    const START_AT = 30; // segundo donde querés que empiece
+    const START_AT = 30;
 
     if (isPlaying) {
       audioRef.current.pause();
@@ -326,25 +362,38 @@ function QuinceInvitation() {
         {/* UBICACIÓN */}
         <section className={`${SECTION_BASE} flex justify-center`}>
           <motion.div
-            className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
+            className="text-center space-y-4"
             variants={textStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.6 }}
           >
-            <TextMotion as="div" className="text-2xl">
-              📍
+            <TextMotion className="text-sm md:text-base">
+              Días restantes:
             </TextMotion>
-            <TextMotion
-              as="h2"
-              className="text-lg md:text-xl font-medium"
-            >
-              Ubicación del evento:
-            </TextMotion>
-            <TextMotion className="text-base md:text-lg">
-              Salon Las Rosas, Junin, Mendoza
-            </TextMotion>
+            <div className="flex justify-center gap-2 md:gap-3">
+              {[
+                { label: "Días", value: countdown.days },
+                { label: "Horas", value: countdown.hours },
+                { label: "Min", value: countdown.minutes },
+                { label: "Seg", value: countdown.seconds },
+              ].map((item) => (
+                <motion.div
+                  key={item.label}
+                  className="flex flex-col items-center"
+                  variants={textVariant}
+                >
+                  <div className="min-w-[42px] md:min-w-[56px] px-3 py-2 md:px-4 md:py-3 bg-black text-white text-lg md:text-2xl font-mono rounded">
+                    {item.value}
+                  </div>
+                  <span className="mt-1 text-[10px] md:text-xs uppercase tracking-wide">
+                    {item.label}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
+
         </section>
 
         {/* MENSAJE FOTO */}
@@ -365,8 +414,7 @@ function QuinceInvitation() {
                 as="p"
                 className="text-base sm:text-lg md:text-2xl italic leading-relaxed"
               >
-                "Con mucha ilusión, te invito a mis quince primaveras, un día
-                lleno de sueños y alegría que quiero compartir contigo."
+                "Será una noche especial para mi y me encantaria que la disfrutes conmigo."
               </TextMotion>
               <TextMotion
                 as="p"
@@ -378,6 +426,28 @@ function QuinceInvitation() {
           </div>
         </section>
 
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+          <motion.div
+            className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <TextMotion as="div" className="text-2xl">
+              📍
+            </TextMotion>
+            <TextMotion
+              as="h2"
+              className="text-lg md:text-xl font-medium"
+            >
+              Ubicación del evento:
+            </TextMotion>
+            <TextMotion className="text-base md:text-lg">
+              Salon Las Rosas, Junin, Mendoza
+            </TextMotion>
+          </motion.div>
+        </section>
         {/* FOTO FULL */}
         <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <div
@@ -418,41 +488,58 @@ function QuinceInvitation() {
           </motion.div>
         </section>
 
-        {/* CONTADOR + MAPA */}
-        <section className={`${SECTION_BASE} space-y-10`}>
-          {/* Contador */}
+        {/* FOTO FULL */}
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+          <div
+            className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[50vh] sm:min-h-[60vh] bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
+            style={{ backgroundImage: `url(${imagen4})` }}
+          />
+        </section>
+
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
           <motion.div
-            className="text-center space-y-4"
+            className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
             variants={textStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.6 }}
           >
-            <TextMotion className="text-sm md:text-base">
-              Días restantes:
+            {/* "LOGO" ANIMADO CON EMOJI */}
+            <motion.div
+              className="mx-auto mb-2 w-16 h-16 rounded-2xl bg-pink-100 flex items-center justify-center shadow-md"
+              animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {/* Podés cambiar el emoji por el que más te guste */}
+              <span className="text-2xl">
+                📝💖
+              </span>
+            </motion.div>
+
+            <TextMotion
+              as="h2"
+              className="text-lg md:text-xl font-medium tracking-[0.15em]"
+            >
+              VALOR DE LA TARJETA
             </TextMotion>
-            <div className="flex justify-center gap-2 md:gap-3">
-              {[
-                { label: "Días", value: countdown.days },
-                { label: "Horas", value: countdown.hours },
-                { label: "Min", value: countdown.minutes },
-                { label: "Seg", value: countdown.seconds },
-              ].map((item) => (
-                <motion.div
-                  key={item.label}
-                  className="flex flex-col items-center"
-                  variants={textVariant}
-                >
-                  <div className="min-w-[42px] md:min-w-[56px] px-3 py-2 md:px-4 md:py-3 bg-black text-white text-lg md:text-2xl font-mono rounded">
-                    {item.value}
-                  </div>
-                  <span className="mt-1 text-[10px] md:text-xs uppercase tracking-wide">
-                    {item.label}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
+
+            <button
+              onClick={() => setMostrarPrecio(true)}
+              className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+            >
+              VER VALOR
+            </button>
           </motion.div>
+        </section>
+
+
+        <section className={`${SECTION_BASE} space-y-10`}>
+
+
 
           {/* Texto + Mapa */}
           <motion.div
@@ -499,61 +586,7 @@ function QuinceInvitation() {
         <section
           className={`${SECTION_BASE} flex flex-col items-center gap-10`}
         >
-          {/* Itinerario */}
-          <motion.div
-            className="w-full max-w-sm sm:max-w-md text-center"
-            variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
-          >
-            <TextMotion
-              as="h2"
-              className="text-lg md:text-xl font-semibold mb-6"
-            >
-              Itinerario
-            </TextMotion>
 
-            <div className="inline-block text-left relative pl-4 sm:pl-6">
-              {/* línea vertical */}
-              <div className="absolute left-4 sm:left-6 top-2 bottom-2 w-px bg-slate-400" />
-
-              <div className="space-y-6 text-xs sm:text-sm md:text-base">
-                {/* Evento 1 */}
-                <motion.div
-                  className="flex items-center gap-3"
-                  variants={textVariant}
-                >
-                  <span className="text-[11px] sm:text-xs md:text-sm font-mono w-12 text-right">
-                    21:30
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-black" />
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">📅</span>
-                    <p className="text-sm md:text-base">Recepción</p>
-                  </div>
-                </motion.div>
-
-                {/* Evento 2 */}
-                <motion.div
-                  className="flex items-center gap-3"
-                  variants={textVariant}
-                >
-                  <span className="text-[11px] sm:text-xs md:text-sm font-mono w-12 text-right">
-                    22:30
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-black" />
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">🎉</span>
-                    <div className="text-sm md:text-base leading-tight">
-                      <p>Entrada</p>
-                      <p>Quinceañera</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
 
           {/* Foto estilo “polaroid” apilada */}
           <div className="w-full flex flex-col items-center">
@@ -568,16 +601,179 @@ function QuinceInvitation() {
           </TextMotion>
         </section>
 
-        {/* CIERRE */}
-        <section className={`${SECTION_BASE} text-center`}>
-          <TextMotion
-            as="p"
-            className="text-lg sm:text-xl md:text-2xl font-semibold"
+        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+          <motion.div
+            className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
+            variants={textStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
           >
-            ¡Te esperamos!
-          </TextMotion>
+
+
+            <TextMotion
+              as="h2"
+              className="text-lg md:text-xl font-medium tracking-[0.15em]"
+            >
+              ¡Te esperamos!
+            </TextMotion>
+
+            <button
+              onClick={() => setMostrarAsistencia(true)}
+              className="rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+            >
+              CONFIRMAR ASISTENCIA
+            </button>
+          </motion.div>
         </section>
       </div>
+      {mostrarPrecio && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-white rounded-3xl shadow-2xl max-w-md w-[90%] px-6 py-8 text-center space-y-6"
+          >
+            <h2 className="text-xl sm:text-2xl font-semibold text-slate-800">
+              Valores de la tarjeta
+            </h2>
+
+            <div className="space-y-3 text-sm sm:text-base text-slate-700">
+              <div className="flex justify-between border-b border-slate-200 pb-2">
+                <span>Hasta el 28/02</span>
+                <span className="font-semibold">$ 30.000</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-200 pb-2">
+                <span>Hasta el 30/04</span>
+                <span className="font-semibold">$ 35.000</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Hasta el 20/06</span>
+                <span className="font-semibold">$ 40.000</span>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-500">
+              * Luego de esas fechas, los valores pueden actualizarse.
+            </p>
+
+            <button
+              onClick={() => setMostrarPrecio(false)}
+              className="mt-2 rounded-full bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-5 py-2"
+            >
+              Volver
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+
+      {mostrarAsistencia && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-white rounded-3xl shadow-2xl max-w-md w-[90%] px-6 py-8 space-y-6"
+          >
+            <h2 className="text-xl sm:text-2xl font-semibold text-center text-slate-800">
+              Confirmar asistencia
+            </h2>
+
+            <form
+              className="space-y-4"
+              onSubmit={handleSubmit}
+
+            >
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 text-left">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                    Nombre
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    placeholder="Nombre"
+                  />
+                </div>
+
+                <div className="flex-1 text-left">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                    Apellido
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={apellido}
+                    onChange={(e) => setApellido(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    placeholder="Apellido"
+                  />
+                </div>
+              </div>
+
+              <div className="text-left">
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                  Cantidad de personas
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={cantidad}
+                  onChange={(e) => setCantidad(Number(e.target.value) || 1)}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                />
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-500">
+                  Incluyéndote a vos 🙂
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={estadoEnvio === "sending"}
+                  className="flex-1 rounded-full bg-pink-500 hover:bg-pink-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2"
+                >
+                  {estadoEnvio === "sending" ? "Enviando..." : "Enviar confirmación"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMostrarAsistencia(false)}
+                  className="flex-1 rounded-full border border-slate-300 text-slate-700 text-sm font-medium px-5 py-2 bg-slate-50 hover:bg-slate-100"
+                >
+                  Cancelar
+                </button>
+
+               
+
+              </div>
+               {estadoEnvio === "sending" && (
+                  <p className="text-xs sm:text-sm text-slate-500 text-center mt-2">
+                    Enviando tu confirmación...
+                  </p>
+                )}
+
+                {estadoEnvio === "success" && (
+                  <p className="text-xs sm:text-sm text-green-600 text-center mt-2">
+                    ¡Gracias por confirmar tu asistencia! 💖
+                  </p>
+                )}
+
+                {estadoEnvio === "error" && (
+                  <p className="text-xs sm:text-sm text-red-500 text-center mt-2">
+                    Ocurrió un error al enviar. Por favor, intentá de nuevo.
+                  </p>
+                )}
+            </form>
+          </motion.div>
+        </div>
+      )}
+
     </div>
   );
 }
