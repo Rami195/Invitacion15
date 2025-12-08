@@ -497,7 +497,7 @@ function QuinceInvitation() {
               Formal
             </TextMotion>
             <TextMotion className="text-lg md:text-xl">
-              Dress Code: Negro y blanco
+              Dress Code: No utilizar Rojo
             </TextMotion>
           </motion.div>
         </section>
