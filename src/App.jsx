@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
-
+import { motion, useMotionValue, useTransform, animate,useScroll } from "framer-motion";
 import bgFlowers from "../public/imagen2.jpeg"; // usa tu imagen floral
 import bgInvitation from "../public/imagen3.jpeg";
 import seccion1 from "../public/seccion1.jpeg";
@@ -34,9 +33,57 @@ const textStagger = {
   },
 };
 
+// animación para secciones (scroll)
+const sectionVariant = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
+};
+
 // =================== CLASE BASE PARA SECCIONES ===================
 const SECTION_BASE =
   "py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8";
+function AnimatedNumber({ value }) {
+  const num = typeof value === "string" ? parseInt(value, 10) || 0 : value ?? 0;
+
+  const count = useMotionValue(num);
+  const rounded = useTransform(count, (latest) =>
+    String(Math.round(latest)).padStart(2, "0")
+  );
+
+  const [display, setDisplay] = React.useState(
+    String(num).padStart(2, "0")
+  );
+
+  useEffect(() => {
+    // cuando cambie el valor, animamos desde el actual hasta el nuevo
+    const newNum =
+      typeof value === "string" ? parseInt(value, 10) || 0 : value ?? 0;
+
+    const controls = animate(count, newNum, {
+      duration: 0.5,
+      ease: "easeOut",
+    });
+
+    const unsubscribe = rounded.on("change", (v) => {
+      setDisplay(v);
+    });
+
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [value, count, rounded]);
+
+  return (
+    <motion.span style={{ display: "inline-block" }}>
+      {display}
+    </motion.span>
+  );
+}
 
 // Componente helper para textos animados
 function TextMotion({
@@ -184,9 +231,13 @@ function PhotoStack() {
   const getPos = (i) => (i - activeIndex + total) % total;
 
   return (
-    <div
+    <motion.div
       className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl aspect-[4/3] mx-auto cursor-pointer select-none"
       onClick={handleNext}
+      variants={sectionVariant}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
     >
       {stackImages.map((src, i) => {
         const pos = getPos(i);
@@ -217,7 +268,7 @@ function PhotoStack() {
           </div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 
@@ -232,8 +283,8 @@ function QuinceInvitation() {
   const [apellido, setApellido] = useState("");
   const [cantidad, setCantidad] = useState(1);
   const [estadoEnvio, setEstadoEnvio] = useState("idle");
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw41bMYRHq59iDdCB-ROnHj_lmnMTrMSWM-hNZwpwtueMqtTh-keKBSePfdC9QR37M/exec";
-
+  const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbw41bMYRHq59iDdCB-ROnHj_lmnMTrMSWM-hNZwpwtueMqtTh-keKBSePfdC9QR37M/exec";
 
   const handleOpenAsistencia = () => {
     setMostrarAsistencia(true);
@@ -242,7 +293,6 @@ function QuinceInvitation() {
     setApellido("");
     setCantidad(1);
   };
-
 
   useEffect(() => {
     audioRef.current = new Audio(musicaFondo);
@@ -321,8 +371,14 @@ function QuinceInvitation() {
     >
       {/* velo blanco para lectura */}
       <div className="min-h-screen bg-white/70">
-        {/* HERO 1 (lo dejamos con min-h específico) */}
-        <section className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        {/* HERO 1 */}
+        <motion.section
+          className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8"
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+        >
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion1})` }}
@@ -367,19 +423,20 @@ function QuinceInvitation() {
               </motion.button>
             </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        {/* UBICACIÓN */}
-        <section
+        {/* COUNTDOWN */}
+        <motion.section
           className={`${SECTION_BASE} flex justify-center`}
           style={{ fontFamily: '"Bebas Neue", sans-serif' }}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
         >
           <motion.div
             className="text-center space-y-4"
             variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
           >
             <TextMotion className="text-lg md:text-2xl">
               Días restantes:
@@ -398,7 +455,7 @@ function QuinceInvitation() {
                   variants={textVariant}
                 >
                   <div className="min-w-[56px] md:min-w-[72px] px-4 py-3 md:px-5 md:py-4 bg-black text-white text-2xl md:text-4xl rounded">
-                    {item.value}
+                    <AnimatedNumber value={item.value} />
                   </div>
                   <span className="mt-2 text-xs md:text-sm uppercase tracking-wide">
                     {item.label}
@@ -407,11 +464,16 @@ function QuinceInvitation() {
               ))}
             </div>
           </motion.div>
-        </section>
-
+        </motion.section>
 
         {/* MENSAJE FOTO */}
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion4})` }}
@@ -420,15 +482,13 @@ function QuinceInvitation() {
             <motion.div
               className="relative max-w-3xl mx-auto px-2 sm:px-4"
               variants={textStagger}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.6 }}
             >
               <TextMotion
                 as="p"
                 className="text-base sm:text-lg md:text-2xl italic leading-relaxed"
               >
-                "Será una noche especial para mi y me encantaria que la disfrutes conmigo."
+                "Será una noche especial para mi y me encantaria que la
+                disfrutes conmigo."
               </TextMotion>
               <TextMotion
                 as="p"
@@ -438,15 +498,19 @@ function QuinceInvitation() {
               </TextMotion>
             </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+        {/* UBICACIÓN */}
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <motion.div
             className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
             variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
           >
             <TextMotion as="div" className="text-2xl">
               📍
@@ -461,23 +525,32 @@ function QuinceInvitation() {
               Salon Las Rosas, Junin, Mendoza
             </TextMotion>
           </motion.div>
-        </section>
-        {/* FOTO FULL */}
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
-          <div
+        </motion.section>
+
+        {/* FOTO FULL seccion5 */}
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${seccion5})` }}
+            variants={sectionVariant}
           />
-        </section>
+        </motion.section>
 
         {/* DRESS CODE */}
-        <section className={`${SECTION_BASE} text-center space-y-3`}>
-          <motion.div
-            variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
-          >
+        <motion.section
+          className={`${SECTION_BASE} text-center space-y-3`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div variants={textStagger}>
             <TextMotion
               as="div"
               className="text-3xl flex items-center justify-center gap-3"
@@ -485,7 +558,6 @@ function QuinceInvitation() {
               <span role="img" aria-label="saco">
                 🧥👗
               </span>
-
             </TextMotion>
             <TextMotion className="text-sm md:text-base">
               Código de vestimenta:
@@ -500,25 +572,35 @@ function QuinceInvitation() {
               Dress Code: No utilizar Rojo
             </TextMotion>
           </motion.div>
-        </section>
+        </motion.section>
 
-        {/* FOTO FULL */}
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
-          <div
+        {/* FOTO FULL imagen4 */}
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div
             className="relative w-full max-w-xl sm:max-w-2xl lg:max-w-3xl min-h-[50vh] sm:min-h-[60vh] bg-cover bg-center rounded-3xl overflow-hidden shadow-2xl"
             style={{ backgroundImage: `url(${imagen4})` }}
+            variants={sectionVariant}
           />
-        </section>
+        </motion.section>
 
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+        {/* VALOR TARJETA */}
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <motion.div
             className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
             variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
           >
-            {/* "LOGO" ANIMADO CON EMOJI */}
             <motion.div
               className="mx-auto mb-2 w-16 h-16 rounded-2xl bg-[#6EC471] hover:bg-[#8ceb8f] px-8 cursor-pointer flex items-center flex-row justify-center shadow-md"
               animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
@@ -528,13 +610,8 @@ function QuinceInvitation() {
                 ease: "easeInOut",
               }}
             >
-              {/* Podés cambiar el emoji por el que más te guste */}
-              <span className="text-2xl">
-                📝
-              </span>
-              <span className="text-2xl">
-                💖
-              </span>
+              <span className="text-2xl">📝</span>
+              <span className="text-2xl">💖</span>
             </motion.div>
 
             <TextMotion
@@ -551,27 +628,29 @@ function QuinceInvitation() {
               VER VALOR
             </button>
           </motion.div>
-        </section>
+        </motion.section>
 
-
-        <section className={`${SECTION_BASE} space-y-10`}>
-
-
-
-          {/* Texto + Mapa */}
+        {/* MAPA */}
+        <motion.section
+          className={`${SECTION_BASE} space-y-10`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <motion.div
             className="space-y-4 text-center"
             variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
           >
             <TextMotion className="max-w-3xl mx-auto text-base md:text-lg">
               Salon Las Rosas, Junin, Mendoza - 21:30
             </TextMotion>
 
             <div className="max-w-4xl mx-auto w-full">
-              <div className="aspect-[16/9] w-full rounded-xl overflow-hidden shadow-lg border border-slate-200">
+              <motion.div
+                className="aspect-[16/9] w-full rounded-xl overflow-hidden shadow-lg border border-slate-200"
+                variants={sectionVariant}
+              >
                 <iframe
                   title="Mapa del evento"
                   src="https://www.google.com/maps?q=Salon%20Las%20Rosas%20Junin%20Mendoza&output=embed"
@@ -581,7 +660,7 @@ function QuinceInvitation() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 ></iframe>
-              </div>
+              </motion.div>
 
               <motion.a
                 href="https://maps.app.goo.gl/5XD1Esf1orj5Mv2h7?g_st=aw"
@@ -596,19 +675,18 @@ function QuinceInvitation() {
               </motion.a>
             </div>
           </motion.div>
+        </motion.section>
 
-        </section>
-
-        {/* ITINERARIO + FOTO APILADA */}
-        <section
+        {/* FOTO APILADA */}
+        <motion.section
           className={`${SECTION_BASE} flex flex-col items-center gap-10`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
         >
-
-
-          {/* Foto estilo “polaroid” apilada */}
           <div className="w-full flex flex-col items-center">
             <PhotoStack />
-
           </div>
           <TextMotion
             as="p"
@@ -616,18 +694,20 @@ function QuinceInvitation() {
           >
             Toca para ver más fotos
           </TextMotion>
-        </section>
+        </motion.section>
 
-        <section className={`${SECTION_BASE} flex items-center justify-center`}>
+        {/* CONFIRMAR ASISTENCIA */}
+        <motion.section
+          className={`${SECTION_BASE} flex items-center justify-center`}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <motion.div
             className="w-full max-w-xl sm:max-w-2xl text-center space-y-4 bg-white/80 rounded-2xl shadow-lg px-6 sm:px-8 py-8 sm:py-10"
             variants={textStagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
           >
-
-
             <TextMotion
               as="h2"
               className="text-lg md:text-xl font-medium "
@@ -636,19 +716,22 @@ function QuinceInvitation() {
             </TextMotion>
 
             <button
-              onClick={() => handleOpenAsistencia()}
+              onClick={handleOpenAsistencia}
               className="rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] text-white text-sm font-medium px-5 py-2"
             >
               CONFIRMAR ASISTENCIA
             </button>
           </motion.div>
-        </section>
+        </motion.section>
       </div>
+
+      {/* MODAL PRECIOS */}
       {mostrarPrecio && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="bg-white rounded-3xl shadow-2xl max-w-md w-[90%] px-6 py-8 text-center space-y-4"
           >
@@ -663,8 +746,6 @@ function QuinceInvitation() {
             >
               Alias: ade.garro.694
             </h3>
-
-
 
             <div className="space-y-3 text-sm sm:text-base text-slate-700">
               <div className="flex justify-between border-b border-slate-200 pb-2">
@@ -681,7 +762,6 @@ function QuinceInvitation() {
               </div>
             </div>
 
-            {/* Oraciones con menos separación */}
             <div className="space-y-1">
               <p className="text-xs sm:text-sm text-slate-500">
                 * Menores de 10 años NO PAGAN.
@@ -693,14 +773,13 @@ function QuinceInvitation() {
                   href="https://wa.me/542634180364"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#6EC471] font-semibold underline hover:opacity-80"
+                  className="text-[#6EC471] font-semibold hover:opacity-80"
                 >
                   +54 2634 180364
                 </a>
                 .
               </p>
             </div>
-
 
             <button
               onClick={() => setMostrarPrecio(false)}
@@ -710,10 +789,9 @@ function QuinceInvitation() {
             </button>
           </motion.div>
         </div>
-
       )}
 
-
+      {/* MODAL ASISTENCIA */}
       {mostrarAsistencia && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
           <motion.div
@@ -726,11 +804,7 @@ function QuinceInvitation() {
               Confirmar asistencia
             </h2>
 
-            <form
-              className="space-y-4"
-              onSubmit={handleSubmit}
-
-            >
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 text-left">
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
@@ -789,7 +863,9 @@ function QuinceInvitation() {
                   disabled={estadoEnvio === "sending"}
                   className="flex-1 rounded-full bg-[#6EC471] hover:bg-[#8ceb8f] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2"
                 >
-                  {estadoEnvio === "sending" ? "Enviando..." : "Enviar confirmación"}
+                  {estadoEnvio === "sending"
+                    ? "Enviando..."
+                    : "Enviar confirmación"}
                 </button>
 
                 <button
@@ -799,10 +875,8 @@ function QuinceInvitation() {
                 >
                   Cancelar
                 </button>
-
-
-
               </div>
+
               {estadoEnvio === "sending" && (
                 <p className="text-xs sm:text-sm text-slate-500 text-center mt-2">
                   Enviando tu confirmación...
@@ -824,7 +898,6 @@ function QuinceInvitation() {
           </motion.div>
         </div>
       )}
-
     </div>
   );
 }
@@ -914,9 +987,16 @@ function FloralCurtain({ onFinished }) {
 export default function App() {
   // 0 = IntroCard, 1 = FloralCurtain, 2 = Invitación visible
   const [step, setStep] = useState(0);
+  const { scrollYProgress } = useScroll();
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
+      {/* Barra de progreso de scroll */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-[#6EC471] origin-left z-[60]"
+        style={{ scaleX: scrollYProgress }}
+      />
+
       {/* La invitación está siempre de fondo */}
       <QuinceInvitation />
 
